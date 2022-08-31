@@ -507,53 +507,36 @@ double **Lnorm()
     weightedAdjMat();
     diagDegMat();
     for (i = 0; i < vector_num; i++)
-    { /* D^(-1/2) */
+     /* D^(-1/2) */
         diagDegMatrix[i][i] = 1 / (sqrt(diagDegMatrix[i][i]));
-    }
+    
     res = matMult(diagDegMatrix, weightedAdjMatrix);
     norm_mat = matMult(res, diagDegMatrix);
-    for (j = 0; j < vector_num; j++)
-    {
+    for (j = 0; j < vector_num; j++){
         for (k = 0; k < vector_num; k++)
-        {
-            if (j == k)
-            { /*minus id mat*/
-                norm_mat[j][k] = 1 - norm_mat[j][k];
-            }
-            else
-            {
-                norm_mat[j][k] = -(norm_mat[j][k]);
-            }
-        }
+            norm_mat[j][k] = j == k ? 1 - norm_mat[j][k]: - (norm_mat[j][k]);
     }
     freearray(res, vector_num);
     return norm_mat;
 }
 
 /* PRINTING THE MAT BY GIVIEN ROW AND COL */
-void print_mat(double **Mat, int rowNum, int colNum)
-{
+void print_mat(double **Mat, int rowNum, int colNum){
     int i, j;
-    for (i = 0; i < rowNum; i++)
-    {
-        for (j = 0; j < colNum; j++)
-        {
+    for (i = 0; i < rowNum; i++){
+        for (j = 0; j < colNum; j++){
             if ((Mat[i][j] < 0) && (Mat[i][j] > -0.00005))
-            {
                 Mat[i][j] = 0;
-            }
-            if (j == colNum - 1)
-            {
+            
+            if (j == colNum - 1){
                 printf("%0.4f", Mat[i][j]);
                 if (i < rowNum - 1)
-                {
                     printf("\n");
-                }
+                
             }
             else
-            {
                 printf("%0.4f,", Mat[i][j]);
-            }
+            
         }
     }
 }
@@ -564,18 +547,15 @@ double **diagDegMat()
     double sum;
     diagDegMatrix = (double **)calloc(vector_num, vector_num * sizeof(double));
     print_err_with_assertg(diagDegMatrix != NULL);
-    for (i = 0; i < vector_num; i++)
-    {
+    for (i = 0; i < vector_num; i++){
         diagDegMatrix[i] = (double *)calloc(vector_num, sizeof(double));
         print_err_with_assertg(diagDegMatrix[i] != NULL);
     }
-    for (j = 0; j < vector_num; j++)
-    {
+    for (j = 0; j < vector_num; j++){
         sum = 0;
         for (k = 0; k < vector_num; k++)
-        {
             sum += weightedAdjMatrix[j][k];
-        }
+        
         diagDegMatrix[j][j] = sum;
     }
     return diagDegMatrix;
@@ -584,19 +564,12 @@ double **diagDegMat()
 void calcRotationMat(double **P, double c, double s, int row, int column)
 {
     int i, j;
-    for (i = 0; i < vector_num; i++)
-    {
+    for (i = 0; i < vector_num; i++){
         for (j = 0; j < vector_num; j++)
-        { /*id mat*/
-            if (i == j)
-            {
-                P[i][j] = 1;
-            }
-            else
-            {
-                P[i][j] = 0;
-            }
-        }
+        /*id mat*/
+
+            P[i][j] = i == j ? 1 : 0;
+
     }
     P[row][column] = s;
     P[column][row] = -s;
@@ -604,8 +577,7 @@ void calcRotationMat(double **P, double c, double s, int row, int column)
     P[column][column] = c;
 }
 
-double calc_theta(double **Mat, int i, int j)
-{
+double calc_theta(double **Mat, int i, int j){
     double res, up, down;
     up = Mat[j][j] - Mat[i][i];
     down = 2 * Mat[i][j];
@@ -613,8 +585,7 @@ double calc_theta(double **Mat, int i, int j)
     return res;
 }
 
-double calc_t(double theta)
-{
+double calc_t(double theta){
     int sign;
     double down;
 
@@ -624,8 +595,7 @@ double calc_t(double theta)
     return sign / down;
 }
 
-double calc_c(double t)
-{
+double calc_c(double t){
     double res;
     double down = sqrt(t * t + 1);
     res = 1 / down;
@@ -634,48 +604,34 @@ double calc_c(double t)
 
 double calc_s(double t, double c) { return t * c; }
 
-int isConverged(double **A, double **Aprime)
-{
+int isConverged(double **A, double **Aprime){
     double epsilon = pow(10, -5);
     int i, j, k, l;
-    double res;
-    double sumA = 0;
-    double sumAprime = 0;
-    for (i = 0; i < vector_num; i++)
-    {
-        for (j = 0; j < vector_num; j++)
-        {
+    double res, sumA, sumAprime;
+    sumA = 0;
+    sumAprime = 0;
+    for (i = 0; i < vector_num; i++){
+        for (j = 0; j < vector_num; j++){
             if (i != j)
-            {
                 sumA += pow(A[i][j], 2);
-            }
+            
         }
     }
-    for (k = 0; k < vector_num; k++)
-    {
-        for (l = 0; l < vector_num; l++)
-        {
+    for (k = 0; k < vector_num; k++){
+        for (l = 0; l < vector_num; l++){
             if (k != l)
-            {
-                sumAprime += (Aprime[k][l]) * (Aprime[k][l]);
-            }
+                sumAprime += (Aprime[k][l]) * (Aprime[k][l]);   
         }
     }
     res = sumA - sumAprime;
-    if (res <= epsilon)
-    {
-        return 1;
-    }
-    return 0;
+
+    return res <= epsilon ? 1 : 0;
 }
 
-void calcAprime(double **A, double **Aprime, int i, int j, double c, double s)
-{
+void calcAprime(double **A, double **Aprime, int i, int j, double c, double s){
     int k;
-    for (k = 0; k < vector_num; k++)
-    {
-        if ((k != i) && (k != j))
-        {
+    for (k = 0; k < vector_num; k++){
+        if ((k != i) && (k != j)){
             Aprime[k][i] = c * A[k][i] - s * A[k][j];
             Aprime[i][k] = Aprime[k][i];
             Aprime[k][j] = c * A[k][j] + s * A[k][i];
@@ -688,8 +644,7 @@ void calcAprime(double **A, double **Aprime, int i, int j, double c, double s)
     Aprime[j][i] = Aprime[i][j];
 }
 
-double **calcJacobi(double **A)
-{
+double **calcJacobi(double **A){
     double **Aprime;
     double **P;
     double **tmp;
@@ -707,25 +662,19 @@ double **calcJacobi(double **A)
    
 
     for (l = 0; l < vector_num; l++)
-    { /* init to id mat*/
+    /* init to id mat*/
         vectors_mat[l][l] = 1;
-    }
+    
 
-    for (i = 0; i < vector_num; i++)
-    { /*copy A to Aprime*/
+    for (i = 0; i < vector_num; i++){ /*copy A to Aprime*/
         for (j = 0; j < vector_num; j++)
-        {
             Aprime[i][j] = A[i][j];
-        }
+        
     }
-    while ((isConvergedBool == 0) && (counter < 100))
-    {
-        for (i = 0; i < vector_num; i++)
-        { /*finds max off-diagonal indices*/
-            for (j = i + 1; j < vector_num; j++)
-            {
-                if (fabs(A[i][j]) > fabs(A[row][column]))
-                {
+    while ((isConvergedBool == 0) && (counter < 100)){
+        for (i = 0; i < vector_num; i++){ /*finds max off-diagonal indices*/
+            for (j = i + 1; j < vector_num; j++){
+                if (fabs(A[i][j]) > fabs(A[row][column])){
                     row = i;
                     column = j;
                 }
@@ -733,9 +682,8 @@ double **calcJacobi(double **A)
         }
 
         if (A[row][column] == 0)
-        {
             break;
-        }
+        
 
         theta = calc_theta(A, row, column);
         t = calc_t(theta);
@@ -750,21 +698,17 @@ double **calcJacobi(double **A)
         calcAprime(A, Aprime, row, column, c, s);
         isConvergedBool = isConverged(A, Aprime);
 
-        for (i = 0; i < vector_num; i++)
-        { /*copy Aprime to A*/
+        for (i = 0; i < vector_num; i++) { /*copy Aprime to A*/
             for (j = 0; j < vector_num; j++)
-            {
                 A[i][j] = Aprime[i][j];
-            }
         }
         counter++;
     }
     eigenValues = (double *)calloc(vector_num, sizeof(double));
     print_err_with_assertg(eigenValues != NULL);
     for (i = 0; i < vector_num; i++)
-    {
         eigenValues[i] = Aprime[i][i];
-    }
+    
     freearray(Aprime, vector_num);
     freearray(P, vector_num);
     return A;
@@ -774,10 +718,8 @@ double **transpMat(double **Mat)
 {
     int i, j;
     double temp;
-    for (i = 1; i < vector_num; i++)
-    {
-        for (j = 0; j < i; j++)
-        {
+    for (i = 1; i < vector_num; i++){
+        for (j = 0; j < i; j++){
             temp = vectors_mat[i][j];
             Mat[i][j] = Mat[j][i];
             Mat[j][i] = temp;
@@ -786,37 +728,31 @@ double **transpMat(double **Mat)
     return Mat;
 }
 
-void freearray(double **array, int length)
-{
+void freearray(double **array, int length){
     int i;
     for (i = 0; i < length; i++)
-    {
         free(array[i]);
-    }
+    
     free(array);
 }
-void assert_double_mat(double **mat)
-{
+
+void assert_double_mat(double **mat){
     /*Replaces assert*/
-    if (mat == NULL)
-    {
+    if (mat == NULL){
         printf("An Error Has Occured");
         exit(0);
     }
 }
 
-void assert_double_arr(const double *arr)
-{
+void assert_double_arr(const double *arr){
     /*Replaces assert*/
-    if (arr == NULL)
-    {
+    if (arr == NULL){
         printf("An Error Has Occured");
         exit(0);
     }
 }
 
-double **gen_id_mat(int N)
-{
+double **gen_id_mat(int N){
     /*Generates ID matrix*/
     int i, j;
     double **I;
@@ -826,58 +762,45 @@ double **gen_id_mat(int N)
     assert_double_arr(block);
     I = calloc(N, sizeof(double *));
     assert_double_mat(I);
-    for (i = 0; i < N; i++)
-    {
+    for (i = 0; i < N; i++){
         I[i] = block + i * N;
-        for (j = 0; j < N; j++)
-        {
+        for (j = 0; j < N; j++){
             if (i == j)
-            {
                 I[i][j] = 1.0;
-            }
+            
         }
     }
     return I;
 }
-double off(double **A, int N)
-{
+double off(double **A, int N){
     /*Calculates Off(A)^2*/
     int i, j;
     double res;
 
     res = 0;
-    for (i = 0; i < N; i++)
-    {
-        for (j = 0; j < N; j++)
-        {
+    for (i = 0; i < N; i++){
+        for (j = 0; j < N; j++){
             if (i != j)
-            {
                 res += pow(A[i][j], 2);
-            }
+            
         }
     }
     return res;
 }
 
-int sign(double num)
-{
+int sign(double num){
     if (num < 0)
-    {
         return -1;
-    }
     else
-    {
         return 1;
-    }
+    
 }
-void V_multi_P(double **V, double s, double c, int N, int i, int j)
-{
+void V_multi_P(double **V, double s, double c, int N, int i, int j){
     /*V = VP; since P is almost-diagonal, no need to perform full matrix multiplication*/
     int r;
     double V_ri, V_rj;
 
-    for (r = 0; r < N; r++)
-    {
+    for (r = 0; r < N; r++){
         V_ri = V[r][i];
         V_rj = V[r][j];
 
@@ -893,16 +816,12 @@ double *get_ith_column(double **mat, int col_ind, int N)
     col = calloc(N, sizeof(double));
     assert_double_arr(col);
     for (i = 0; i < N; i++)
-    {
         col[i] = mat[i][col_ind];
-    }
     return col;
 }
-void assert_int_arr(const int *arr)
-{
+void assert_int_arr(const int *arr){
     /*Replaces assert*/
-    if (arr == NULL)
-    {
+    if (arr == NULL){
         printf("An Error Has Occured");
         exit(0);
     }
@@ -922,14 +841,10 @@ int *max_indices_off_diag(double **A, int N)
     arr = calloc(2, sizeof(int));
     assert_int_arr(arr);
 
-    for (i = 0; i < N; i++)
-    {
-        for (j = 0; j < N; j++)
-        {
-            if (i != j)
-            {
-                if (fabs(A[i][j]) > val)
-                {
+    for (i = 0; i < N; i++){
+        for (j = 0; j < N; j++){
+            if (i != j){
+                if (fabs(A[i][j]) > val){
                     val = fabs(A[i][j]);
                     max_i = i;
                     max_j = j;
@@ -944,8 +859,7 @@ int *max_indices_off_diag(double **A, int N)
 
 #include "jacobi.c"
 
-void print_double(double num)
-{
+void print_double(double num){
     /*Prevents "-0.0000" situation*/
     if ((num < 0) && (num > -0.00005))
     {
@@ -957,21 +871,17 @@ void print_double(double num)
     }
 }
 
-void print_row(double *row, int len)
-{
+void print_row(double *row, int len){
     /*Prints array (row) according to given dimension: len == number of items*/
     int i;
     for (i = 0; i < len; i++)
     {
         print_double(row[i]);
         if (i != len - 1)
-        {
             printf(",");
-        }
     }
 }
-double *get_diag(double **mat, int N)
-{
+double *get_diag(double **mat, int N){
     /*returns [mat[0][0],mat[1][1],...,mat[N-1][N-1]]*/
     int i;
     double *diag;
@@ -979,13 +889,12 @@ double *get_diag(double **mat, int N)
     assert_double_arr(diag);
 
     for (i = 0; i < N; i++)
-    {
         diag[i] = mat[i][i];
-    }
+    
     return diag;
 }
-void free_mat(double **mat)
-{
+
+void free_mat(double **mat){
     /*Since the matrices are allocated as a contigous block, we first free the block of N*k size and then the pointer*/
     free(mat[0]);
     free(mat);
@@ -1004,6 +913,10 @@ int main(int argc, char *argv[])
     goal = argv[1];
 
     file = fopen(argv[2], "r");
+    if(file == NULL){
+        printf("Invalid Input!\n");
+        assert(file!=NULL);
+    }
     readfile(file);
 
     if (strcmp(goal, "wam") == 0)
@@ -1013,8 +926,7 @@ int main(int argc, char *argv[])
         freearray(vector_list, vector_num);
     }
     /* DDG CASE */
-    else if (strcmp(goal, "ddg") == 0)
-    {
+    else if (strcmp(goal, "ddg") == 0){
         weightedAdjMat();
         print_mat(diagDegMat(), vector_num, vector_num);
         freearray(weightedAdjMatrix, vector_num);
@@ -1022,8 +934,7 @@ int main(int argc, char *argv[])
         freearray(vector_list, vector_num);
     }
     /* LNORM CASE */
-    else if (strcmp(goal, "lnorm") == 0)
-    {
+    else if (strcmp(goal, "lnorm") == 0){
         print_mat(Lnorm(), vector_num, vector_num);
         freearray(weightedAdjMatrix, vector_num);
         freearray(diagDegMatrix, vector_num);
@@ -1053,21 +964,16 @@ int main(int argc, char *argv[])
                 printf("%0.4f,", A[i][i]);
             }
         }
-      /*  printf("--------------------------END JACOBI-1 =========");*/
-       /* transpMat(vectors_mat);*/
-       /* printf("--------------------------END JACOBI -2 ======");*/
+      
+       
         print_mat(vectors_mat, vector_num, vector_num);
-      /*  printf("--------------------------END JACOBI -3 ========");*/
+     
         freearray(vectors_mat, vector_num);
-      /*  printf("--------------------------END JACOBI -4 -=======");*/
         free(eigenValues);
-      /*  printf("--------------------------END JACOBI --5 ========");*/
-        /* segmantion fault ??? */
         freearray(vector_list, vector_num);
-       /* printf("--------------------------END JACOBI --6 ========");*/
+      
     }
-    else
-    {
+    else{
         print_err_with_assertg(0 != 0);
     }
     return 0;
