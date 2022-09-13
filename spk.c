@@ -181,8 +181,8 @@ double *cluster_to_centroid(int index){
     if (num != 0){
         for (i = 0; i < vector_len; i++){
             for (j = 0; j < num; j++){
-                vector_index = (int)clusters[index][j]; /* not actual vector but index in vector_list */
-                res[i] += vector_list[vector_index][i]; /*relevant cluster*/
+                vector_index = (int)clusters[index][j]; 
+                res[i] += vector_list[vector_index][i]; 
             }
         }
 
@@ -230,7 +230,7 @@ double **calccentroids(int max_iter){
     int count_var, isequal;
     catch_err_of_int(clusters_num == 0 || clusters_num > 0);
     count_var = 0, isequal = 1;
-    clusters = (double **)calloc(clusters_num, sizeof(double *)); /* originally in init_centroids */
+    clusters = (double **)calloc(clusters_num, sizeof(double *)); 
     while (count_var < max_iter && isequal == 1){
         vector_to_cluster(clusters_num);
         isequal = update_centroids();
