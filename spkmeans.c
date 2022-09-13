@@ -9,11 +9,6 @@
 #include "spkmeans.h"
 #define eps pow(10, -5)
 
-/*
-We were greatly helped by friends who completed the course 
-in order to plan our data structure
-and the functions that we will implement.
-*/
 
 
 /* GOLOBAL ELEMENTS: */
