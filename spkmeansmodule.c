@@ -7,10 +7,7 @@
 #include <assert.h>
 #include <string.h>
 
-/*I want to say that in this section (connect python and C) 
-we got help from our friends that show us exactly how to do it.
-We try to do it alone during 3 weeks but we don't success.
-*/
+
 
 /*duplicate the struct.. it's not work us without it*/
 typedef struct pair
@@ -20,7 +17,7 @@ typedef struct pair
 } pair;
 
 /* Global variables */
-int clusters_num; /* make sure clusters_num == K*/
+int clusters_num; 
 int k;
 int vector_num;
 int vector_len;
