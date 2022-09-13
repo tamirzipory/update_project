@@ -7,6 +7,6 @@ module = Extension("myspkmeans",
                    ])
 setup(name='myspkmeans',
       version='1.0',
-      author="Tamir Zipory and Yarin Diga",
-      description='פרוייקט מזדיין',
+      author="Adar",
+      description='project',
       ext_modules=[module])
