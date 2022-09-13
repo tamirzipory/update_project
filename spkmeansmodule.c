@@ -14,7 +14,7 @@ typedef struct pair
 } pair;
 
 /* Global variables */
-int clusters_num; /* make sure clusters_num == K*/
+int clusters_num; 
 int k;
 int vector_num;
 int vector_len;
@@ -181,7 +181,7 @@ static PyObject *DiagonalDegreeMatrix(PyObject *self, PyObject *args)
         {
             weightedAdjMatrix[i][j] = PyFloat_AsDouble(PyList_GetItem(PyList_GetItem(origin_matrix, i), j)); /*CONVERSION*/
         }
-    } /* update the global weightedAdjMat */
+    } 
 
     diagDegMat();
 
@@ -536,8 +536,7 @@ PyMODINIT_FUNC PyInit_myspkmeans(void)
     PyObject *m;
     m = PyModule_Create(&moduledef);
     if (!m)
-    {
         return NULL;
-    }
+    
     return m;
 }
